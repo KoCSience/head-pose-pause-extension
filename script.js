@@ -1,5 +1,8 @@
 "use strict";
 
+let markers = [];
+let timeCounts = 0; // videoの時間の個数
+
 chrome.runtime.onMessage.addListener((request) => {
   console.log("[HPPE] addListener");
 
@@ -16,71 +19,84 @@ chrome.runtime.onMessage.addListener((request) => {
   }
 });
 
-window.addEventListener("load", function () {
-  let timeCounts = 0; // videoの時間の個数
-
+window.addEventListener("load", () => {
   // コントローラーの取得
   let videoControlsDiv = document.querySelector(".ytp-right-controls");
-  let vdeDiv = document.createElement("div");
-  vdeDiv.id = "vde-vdeDiv";
-  videoControlsDiv.prepend(vdeDiv);
-  let videoTimeTextsDiv = document.createElement("div");
-  videoTimeTextsDiv.id = "vde-videoTimeText";
-
   //video要素の取得
   let video = document.querySelector("video");
 
-  // YouTubeにボタンを埋め込む処理
+  // vde div , YouTubeにボタンを埋め込む処理
+  let vdeDiv = document.createElement("div");
+  vdeDiv.id = "vde-vdeDiv";
+  let videoTimeTextsDiv = document.createElement("div");
+  videoTimeTextsDiv.id = "vde-videoTimeText";
+
+  const save = createSaveButton(video);
+  vdeDiv.appendChild(save);
+
+  const load = createLoadButton(video);
+  vdeDiv.appendChild(load);
+
+  videoControlsDiv.prepend(vdeDiv);
+  vdeDiv.appendChild(videoTimeTextsDiv); // save → load → videoTimeTextsDiv
+});
+
+function createSaveButton(video) {
   let save = document.createElement("button");
   save.id = "vde-saveButton";
   save.innerHTML = "save";
-  save.onclick = () => {
-    addMarker(video.currentTime);
-    video.pause();
+  save.onclick = onSaveButton(video);
+  return save;
+}
 
-    /*
-        マーカーの一覧を画面に表示する処理(作成中)
-        let $list = $('<ul id="list"> hogehoge </ul>')
+function onSaveButton() {
+  addMarker(video.currentTime);
+  video.pause();
 
-        markers.forEach(function (marker) {
-            $list.append($('<li/>').text(`${marker}`))
-        })
+  /*
+      マーカーの一覧を画面に表示する処理(作成中)
+      let $list = $('<ul id="list"> hogehoge </ul>')
 
-        let document = video.ownerDocument;
-        let wrapper = document.createElement("div");
-        wrapper.classList.add("hoge-controler");
+      markers.forEach(function (marker) {
+          $list.append($('<li/>').text(`${marker}`))
+      })
 
-        video.append($list);
-        */
-  };
-  vdeDiv.appendChild(save);
+      let document = video.ownerDocument;
+      let wrapper = document.createElement("div");
+      wrapper.classList.add("hoge-controler");
 
+      video.append($list);
+      */
+}
+
+function createLoadButton(video) {
   let load = document.createElement("button");
   load.id = "vde-loadButton";
   load.innerHTML = "load";
-  load.onclick = () => {
-    jumpToMarker(timeCounts);
-    video.play();
-    timeCounts = (timeCounts + 1) % markers.length;
-  };
-  vdeDiv.appendChild(load);
+  load.onclick = onLoadButton(video);
+  return load;
+}
 
-  vdeDiv.appendChild(videoTimeTextsDiv); // save → load → videoTimeTextsDiv
-  function createVideoText(time) {
-    const videoText = document.createElement("p");
-    videoText.id = "vde-videoText-" + timeCounts;
-    videoText.innerHTML = time;
-    return videoText;
-  }
+function onLoadButton(video) {
+  jumpToMarker(timeCounts);
+  video.play();
+  timeCounts = (timeCounts + 1) % markers.length;
+}
 
-  let markers = [];
-  function addMarker(time) {
-    markers.push(time);
-    const videoTimeText = createVideoText(time);
-    console.log("videoTimeText: ", videoTimeText);
-    videoTimeTextsDiv.appendChild(videoTimeText);
-  }
-  const jumpToMarker = (index) => {
-    video.currentTime = markers[index];
-  };
-});
+function createVideoText(time) {
+  const videoText = document.createElement("p");
+  videoText.id = "vde-videoText-" + timeCounts;
+  videoText.innerHTML = time;
+  return videoText;
+}
+
+function addMarker(time, videoTimeTextsDiv) {
+  markers.push(time);
+  const videoTimeText = createVideoText(time);
+  console.log("videoTimeText: ", videoTimeText);
+  videoTimeTextsDiv.appendChild(videoTimeText);
+}
+
+function jumpToMarker(index, video) {
+  video.currentTime = markers[index];
+}
