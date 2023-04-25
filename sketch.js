@@ -1,3 +1,5 @@
+"use strict";
+
 // Copyright (c) 2019 ml5
 //
 // This software is released under the MIT License.
@@ -11,6 +13,7 @@ PoseNet example using p5.js
 let video;
 let poseNet;
 let poses = [];
+let videoPausingBool = false;
 
 function setup() {
   createCanvas(640, 480);
@@ -39,7 +42,17 @@ function draw() {
   drawKeypoints();
   drawSkeleton();
 
-  
+  if (!isNullOrUndefined(poses[0])) {
+    const pose = poses[0].pose;
+    // console.log(pose);
+    if (pose.leftEye.y > pose.leftEar.y || pose.rightEye.y > pose.rightEar.y) {
+      // console.log("[HPPE] !!!!DOWN!!!!");
+      sendVideoPause();
+    } else {
+      sendVideoPlay();
+      // console.log("[HPPE] UP??");
+    }
+  }
 }
 
 // A function to draw ellipses over the detected keypoints
@@ -79,4 +92,58 @@ function drawSkeleton() {
       );
     }
   }
+}
+
+async function sendVideoPause() {
+  if (videoPausingBool === false) {
+    videoPausingBool = true;
+    console.log("[HPPE] pause to true (head down)");
+    // await chrome.runtime.sendMessage({
+    //   videoPausingBool: videoPausingBool,
+    // });
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      console.log(tabs);
+      console.log(tabs[0]);
+      const id = tabs[0].id;
+
+      // content_script へデータを送る
+      chrome.tabs.sendMessage(id, {
+        videoPausingBool: videoPausingBool,
+      });
+    });
+
+    console.log("[HPPE] send video pause", videoPausingBool);
+  }
+}
+
+async function sendVideoPlay() {
+  if (videoPausingBool === true) {
+    videoPausingBool = false;
+    console.log("[HPPE] pause to false (head up)");
+
+    // await chrome.runtime.sendMessage({
+    //   videoPausingBool: videoPausingBool,
+    // });
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      console.log(tabs);
+      const id = tabs[0].id;
+
+      // content_script へデータを送る
+      chrome.tabs.sendMessage(id, {
+        videoPausingBool: videoPausingBool,
+      });
+    });
+
+    console.log("[HPPE] send video play", videoPausingBool);
+  }
+}
+
+function isUndefined(value) {
+  return typeof value === "undefined";
+}
+
+function isNullOrUndefined(o) {
+  return typeof o === "undefined" || o === null;
 }
