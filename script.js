@@ -24,6 +24,8 @@ window.addEventListener("load", () => {
 
   // コントローラーの取得
   let videoControlsDiv = document.querySelector(".ytp-right-controls");
+  videoControlsDiv.style.display = "flex"; // buttonをいい感じに他のやつと場所を揃える感じ
+
   //video要素の取得
   let video = document.querySelector("video");
 
@@ -40,7 +42,8 @@ window.addEventListener("load", () => {
   vdeDiv.appendChild(load);
 
   videoControlsDiv.prepend(vdeDiv);
-  vdeDiv.appendChild(videoTimeButtonsDiv); // save → load → videoTimeTextsDiv
+
+  // 以下function
 
   function createSaveButton(videoTimeButtonsDiv) {
     let save = document.createElement("button");
@@ -58,15 +61,28 @@ window.addEventListener("load", () => {
   }
 
   function addMarker(currentVideoTime) {
-    let videoTimeButtonsDiv = document.querySelector("#vde-videoTimeButtons");
+    let div = document.querySelector("#vde-markerButtons");
+    if (isNullOrUndefined(div)) {
+      div = document.createElement("div");
+      div.id = "vde-markerButtons";
+      div.innerText = "";
+      div = addMarker_(currentVideoTime);
+      const player = document.querySelector("#player");
+      player.after(div); // divの要素を追加後にafter
+    } else {
+      addMarker_(currentVideoTime);
+    }
 
-    markers.push(currentVideoTime);
-    const videoTimeButton = createVideoTimeButton(
-      markers.length - 1,
-      currentVideoTime
-    );
-    console.log("videoTimeButton: ", videoTimeButton, videoTimeButtonsDiv);
-    videoTimeButtonsDiv.appendChild(videoTimeButton);
+    function addMarker_(currentVideoTime) {
+      markers.push(currentVideoTime);
+      const videoTimeButton = createVideoTimeButton(
+        markers.length - 1,
+        currentVideoTime
+      );
+      console.log("videoTimeButton: ", videoTimeButton, div);
+      div.appendChild(videoTimeButton);
+      return div;
+    }
   }
 
   function createVideoTimeButton(index, time) {
@@ -100,3 +116,7 @@ window.addEventListener("load", () => {
     video.currentTime = markers[index];
   }
 });
+
+function isNullOrUndefined(o) {
+  return typeof o === "undefined" || o === null;
+}
