@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "head-pose-pose-extension",
+  "name": "head-pose-pause-extension",
   "description": "顔認識テスト",
   "version": "0.1.0",
   "action": {
