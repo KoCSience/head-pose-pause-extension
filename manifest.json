@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "head-pose-pause-extension",
-  "description": "顔認識テスト",
+  "description": "顔認識で下を向いたらYouTubeの再生停止出来る拡張機能",
   "version": "0.1.3",
   "action": {
     "default_popup": "index.html"

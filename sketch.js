@@ -1,13 +1,28 @@
 "use strict";
 
 // Optionsページを開くボタン
-document.getElementById("openOptions").addEventListener("click", () => {
+document.getElementById("openOptionsButton").addEventListener("click", () => {
   if (chrome.runtime.openOptionsPage) {
     chrome.runtime.openOptionsPage();
   } else {
     window.open(chrome.runtime.getURL("options.html"));
   }
 });
+
+document.getElementById("playVideoButton").addEventListener("click", () => {
+  sendVideoPlay();
+  poseContinue = true;
+});
+document.getElementById("saveVideoButton").addEventListener("click", () => {
+  sendVideoPause();
+  poseContinue = false;
+});
+document.getElementById("pauseVideoButton").addEventListener("click", () => {
+  sendVideoPause(false);
+  poseContinue = false;
+});
+
+function onPauseVideoButton() {}
 
 // Copyright (c) 2019 ml5
 //
@@ -17,7 +32,8 @@ document.getElementById("openOptions").addEventListener("click", () => {
 let video;
 let poseNet;
 let poses = [];
-let videoPausingBool = false;
+// let videoPausingBool = false;
+let poseContinue = true;
 
 function setup() {
   createCanvas(640, 480);
@@ -46,14 +62,16 @@ function draw() {
   drawKeypoints();
   drawSkeleton();
 
-  if (!isNullOrUndefined(poses[0])) {
+  if (!isNullOrUndefined(poses[0]) && poseContinue) {
     const pose = poses[0].pose;
     // console.log(pose);
     if (pose.leftEye.y > pose.leftEar.y || pose.rightEye.y > pose.rightEar.y) {
       // console.log("[HPPE] !!!!DOWN!!!!");
       sendVideoPause();
     } else {
+      // if (!videoPausingBool) {
       sendVideoPlay();
+      // }
       // console.log("[HPPE] UP??");
     }
   }
@@ -98,13 +116,13 @@ function drawSkeleton() {
   }
 }
 
-async function sendVideoPause() {
-  if (videoPausingBool === false) {
-    videoPausingBool = true;
+async function sendVideoPause(isCreateVideoTimeButton = true) {
+  // if (videoPausingBool === false) {
+  //   videoPausingBool = true;
     console.log("[HPPE] pause to true (head down)");
-    // await chrome.runtime.sendMessage({
-    //   videoPausingBool: videoPausingBool,
-    // });
+    await chrome.runtime.sendMessage({
+      videoPausingBool: videoPausingBool,
+    });
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       console.log(tabs);
@@ -114,6 +132,7 @@ async function sendVideoPause() {
       // content_script へデータを送る
       chrome.tabs.sendMessage(id, {
         videoPausingBool: videoPausingBool,
+        isCreateVideoTimeButton: isCreateVideoTimeButton,
       });
     });
 
@@ -126,9 +145,9 @@ async function sendVideoPlay() {
     videoPausingBool = false;
     console.log("[HPPE] pause to false (head up)");
 
-    // await chrome.runtime.sendMessage({
-    //   videoPausingBool: videoPausingBool,
-    // });
+    await chrome.runtime.sendMessage({
+      videoPausingBool: videoPausingBool,
+    });
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       console.log(tabs);

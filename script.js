@@ -11,9 +11,15 @@ window.addEventListener("load", () => {
     let video = document.querySelector("video");
 
     const videoPausingBool = request.videoPausingBool;
+    const isCreateVideoTimeButton = request.isCreateVideoTimeButton;
     if (videoPausingBool === true) {
       console.log("[HPPE] pause");
-      onSaveButton();
+      if (
+        !isNullOrUndefined(isCreateVideoTimeButton) &&
+        isCreateVideoTimeButton
+      ) {
+        onSaveButton();
+      }
     } else if (videoPausingBool === false) {
       console.log("[HPPE] play");
       video.play();
@@ -88,7 +94,16 @@ window.addEventListener("load", () => {
   function createVideoTimeButton(index, time) {
     const videoTimeButton = document.createElement("button");
     videoTimeButton.id = "vde-videoTimeButton-" + index;
-    videoTimeButton.innerHTML = time;
+
+    const videoTimeDate = TimeConvert.sec2hourInt(time);
+    // console.log("[HPPE] videoTimeDate", videoTimeDate);
+    const videoTimeText =
+      (videoTimeDate.hour == 0 ? "" : videoTimeDate.hour + ":") +
+      (videoTimeDate.min == 0 ? "0:" : videoTimeDate.min + ":") +
+      (videoTimeDate.sec == 0
+        ? "00"
+        : String(videoTimeDate.sec).padStart(2, "0"));
+    videoTimeButton.innerHTML = videoTimeText;
     videoTimeButton.onclick = () => {
       let video = document.querySelector("video");
       console.log("videoTimeButton: ", markers, index);
@@ -119,4 +134,50 @@ window.addEventListener("load", () => {
 
 function isNullOrUndefined(o) {
   return typeof o === "undefined" || o === null;
+}
+
+class TimeConvert {
+  static sec2min(time) {
+    var min = Math.floor(time / 60);
+    var sec = time % 60;
+
+    return {
+      min: min,
+      sec: sec,
+    };
+  }
+
+  static min2hour(time) {
+    var hour = Math.floor(time / 60);
+    var min = time % 60;
+
+    return {
+      hour: hour,
+      min: min,
+    };
+  }
+
+  static sec2hour(time) {
+    var sec = time % 60;
+    var min = Math.floor(time / 60) % 60;
+    var hour = Math.floor(time / 3600);
+
+    return {
+      hour: hour,
+      min: min,
+      sec: sec,
+    };
+  }
+
+  static sec2hourInt(time) {
+    var sec = Math.floor(time % 60);
+    var min = Math.floor(time / 60) % 60;
+    var hour = Math.floor(time / 3600);
+
+    return {
+      hour: hour,
+      min: min,
+      sec: sec,
+    };
+  }
 }
