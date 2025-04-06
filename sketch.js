@@ -9,18 +9,24 @@ document.getElementById("openOptionsButton").addEventListener("click", () => {
   }
 });
 
-document.getElementById("playVideoButton").addEventListener("click", () => {
-  sendVideoPlay();
-  poseContinue = true;
-});
-document.getElementById("saveVideoButton").addEventListener("click", () => {
-  sendVideoPause();
-  poseContinue = false;
-});
-document.getElementById("pauseVideoButton").addEventListener("click", () => {
-  sendVideoPause(false);
-  poseContinue = false;
-});
+document
+  .getElementById("playVideoButton")
+  .addEventListener("click", async () => {
+    sendVideoPlay();
+    poseContinue = true;
+  });
+document
+  .getElementById("saveVideoButton")
+  .addEventListener("click", async () => {
+    sendVideoPause();
+    poseContinue = false;
+  });
+document
+  .getElementById("pauseVideoButton")
+  .addEventListener("click", async () => {
+    sendVideoPause(false);
+    poseContinue = false;
+  });
 
 function onPauseVideoButton() {}
 
@@ -32,7 +38,7 @@ function onPauseVideoButton() {}
 let video;
 let poseNet;
 let poses = [];
-// let videoPausingBool = false;
+let videoPausingBool = false;
 let poseContinue = true;
 
 function setup() {
@@ -66,13 +72,13 @@ function draw() {
     const pose = poses[0].pose;
     // console.log(pose);
     if (pose.leftEye.y > pose.leftEar.y || pose.rightEye.y > pose.rightEar.y) {
-      // console.log("[HPPE] !!!!DOWN!!!!");
+      console.log("[HPPE] !!!!DOWN!!!!");
       sendVideoPause();
     } else {
       // if (!videoPausingBool) {
       sendVideoPlay();
       // }
-      // console.log("[HPPE] UP??");
+      console.log("[HPPE] UP??");
     }
   }
 }
@@ -117,8 +123,8 @@ function drawSkeleton() {
 }
 
 async function sendVideoPause(isCreateVideoTimeButton = true) {
-  // if (videoPausingBool === false) {
-  //   videoPausingBool = true;
+  if (videoPausingBool === false) {
+    videoPausingBool = true;
     console.log("[HPPE] pause to true (head down)");
     await chrome.runtime.sendMessage({
       videoPausingBool: videoPausingBool,
