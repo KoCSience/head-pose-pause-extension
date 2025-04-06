@@ -19,6 +19,8 @@ window.addEventListener("load", () => {
         isCreateVideoTimeButton
       ) {
         onSaveButton();
+      } else if (isCreateVideoTimeButton === false) {
+        video.pause();
       }
     } else if (videoPausingBool === false) {
       console.log("[HPPE] play");

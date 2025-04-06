@@ -13,22 +13,29 @@ document
   .getElementById("playVideoButton")
   .addEventListener("click", async () => {
     sendVideoPlay();
-    poseContinue = true;
+    flipPoseContinue((poseContinue = true));
   });
 document
   .getElementById("saveVideoButton")
   .addEventListener("click", async () => {
     sendVideoPause();
-    poseContinue = false;
+    flipPoseContinue((poseContinue = false));
   });
 document
   .getElementById("pauseVideoButton")
   .addEventListener("click", async () => {
     sendVideoPause(false);
-    poseContinue = false;
+    flipPoseContinue((poseContinue = false));
   });
 
-function onPauseVideoButton() {}
+function flipPoseContinue(poseContinue) {
+  if (poseContinue) {
+    document.getElementById("poseContinue").innerText = "👀";
+  } else {
+    document.getElementById("poseContinue").innerText = "x";
+  }
+}
+// function onPauseVideoButton() {}
 
 // Copyright (c) 2019 ml5
 //
@@ -126,9 +133,9 @@ async function sendVideoPause(isCreateVideoTimeButton = true) {
   if (videoPausingBool === false) {
     videoPausingBool = true;
     console.log("[HPPE] pause to true (head down)");
-    await chrome.runtime.sendMessage({
-      videoPausingBool: videoPausingBool,
-    });
+    // await chrome.runtime.sendMessage({
+    //   videoPausingBool: videoPausingBool,
+    // });
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       console.log(tabs);
@@ -151,9 +158,9 @@ async function sendVideoPlay() {
     videoPausingBool = false;
     console.log("[HPPE] pause to false (head up)");
 
-    await chrome.runtime.sendMessage({
-      videoPausingBool: videoPausingBool,
-    });
+    // await chrome.runtime.sendMessage({
+    //   videoPausingBool: videoPausingBool,
+    // });
 
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       console.log(tabs);
